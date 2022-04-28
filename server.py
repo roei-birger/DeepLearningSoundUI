@@ -1,7 +1,8 @@
 import os
 
 from flask import Flask, render_template, request
-from model.inference_gender import inf_rec, inf_upload
+from model.inference_orya_roi_gender import inf_rec, inf_upload
+# from model.inference_dor_dolev import
 import torch
 
 app = Flask(__name__)
@@ -14,8 +15,10 @@ def load_model(name):
     return model
 
 
-model_gender8 = load_model("8gender_CNN_Model-epoch_8_Weights.pth")
-model_gender7 = load_model("7gender_CNN_Model-epoch_7_Weights.pth")
+model_orya_roi = load_model("model_orya_roi.pth")
+model2 = load_model("model_orya_roi.pth")
+
+# model_dor_dolev = load_model("model_dor_dolev.pth")
 
 
 @app.route('/')
@@ -27,7 +30,7 @@ def upload():
 def send_text():
     if request.method == 'POST':
         if request.form['submit_button'] == 'rec':
-            result = render_template("index.html", pred=inf_rec(model_gender8, model_gender7))
+            result = render_template("index.html", pred=inf_rec(model_orya_roi, model2))
             os.remove('recording.wav')
             return result
 
@@ -37,7 +40,7 @@ def send_text():
             if uploaded_file.filename != '':
                 uploaded_file.save(uploaded_file.filename)
             result = render_template("index.html",
-                                     pred=inf_upload(model_gender8, model_gender7, name=uploaded_file.filename))
+                                     pred=inf_upload(model_orya_roi, model2, name=uploaded_file.filename))
             if uploaded_file.filename != '':
                 os.remove(f'{uploaded_file.filename}')
 

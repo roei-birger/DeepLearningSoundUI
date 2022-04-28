@@ -8,7 +8,7 @@ import torch
 DROP_OUT = 0.5
 
 
-class Convolutional_Neural_Network(nn.Module):
+class Convolutional_Neural_Network_Age(nn.Module):
 
     # def cal_paddind_shape(self, new_shape, old_shape, kernel_size, stride_size):
     #     return (stride_size * (new_shape - 1) + kernel_size - old_shape) / 2
