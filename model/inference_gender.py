@@ -45,6 +45,9 @@ def inferrnce_rec_or_upload(model, name):
 
     while pointer + window <= len(array):
         curr = array[pointer:pointer + window]
+        #windows OS check
+        #tensor_data = torch.tensor(np.array(curr))
+        #linux
         tensor_data = torch.tensor(np.array([curr]))
 
         with torch.inference_mode():
@@ -70,14 +73,13 @@ def inferrnce_rec_or_upload(model, name):
     return f"{predict}"
 
 
-def inf_rec(model1, model2):
+def inf_rec(model1):
     # recording and saving the audio
     record("recording")
-    return inferrnce_rec_or_upload(model1, name="recording.wav") + "\n" + inferrnce_rec_or_upload(model2,
-                                                                                                  name="recording.wav")
+    return inferrnce_rec_or_upload(model1, name="recording.wav") + "\n" 
 
 
-def inf_upload(model1, model2, name):
+def inf_upload(model1, name):
     if name == '':
         return "No file found"
-    return inferrnce_rec_or_upload(model1, name=name) + "\n" + inferrnce_rec_or_upload(model2, name=name)
+    return inferrnce_rec_or_upload(model1, name=name) + "\n" 

@@ -1,5 +1,5 @@
 import os
-import IPython
+#import IPython
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -57,6 +57,17 @@ def inference(file_name):
     return waveform
 
 
+def results(y):
+    y = y.cpu().detach().numpy()
+    predict = [np.exp(c) for c in y]
+    max = np.argmax(predict)
+    result = f'Predicted: {classes[max].capitalize()} \n'
+    result += f'Positive: {round(predict[0][0] * 100, 4)}% \n'
+    result += f'Neutral:  {round(predict[0][1] * 100, 4)}% \n'
+    result += f'Negative: {round(predict[0][2] * 100, 4)}% \n'
+
+    return result
+
 def print_results(y):
     y = y.cpu().detach().numpy()
     predict = [np.exp(c) for c in y]
@@ -66,6 +77,34 @@ def print_results(y):
     print(f'Neutral:  {round(predict[0][1] * 100, 4)}%')
     print(f'Negative: {round(predict[0][2] * 100, 4)}%')
 
+def upload(file_name):
+    waveform, sr = torchaudio.load(file_name, num_frames = SAMPLE_RATE*3)
+    
+    if sr != bundle.sample_rate:
+        waveform = torchaudio.functional.resample(waveform, sr, bundle.sample_rate)
+
+    waveform = waveform.to(device)
+
+    return waveform
+
+def inf_mood(cnn,audio_file_path):
+    # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu")
+
+    # fine-tuning from wav2vec pytorch pipline
+    bundle = torchaudio.pipelines.WAV2VEC2_ASR_BASE_960H
+    model = bundle.get_model().to(device)
+
+    with torch.inference_mode():
+        tor = upload(audio_file_path)
+        embedding, _ = model(tor)
+        embedding = embedding.unsqueeze(0)
+        embedding = Norm(embedding)
+        y = cnn(embedding)
+        return results(y)
+
+
+classes = {0: "Positive", 1: "Neutral", 2: "Negative"}
 
 if __name__ == '__main__':
     cnn = torch.load("model_dor_dolev.pth", map_location=torch.device("cpu"))
